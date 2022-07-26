@@ -14,7 +14,7 @@
     "prepare": "husky install",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "test:coverage": "jest --coverage"
+    "test:cov": "jest --coverage"
   },
   "lint-staged": {
     "*.{js,vue}": "eslint --cache",
