@@ -21,6 +21,21 @@ describe('ProductList - integration', () => {
     server.shutdown({ environment: 'test' })
   })
 
+  const getProducts = async (quantity = 10, override = []) => {
+    let overrideList = []
+
+    if (override.length > 0) {
+      overrideList = override.map((o) => server.create('product', o))
+    }
+
+    const products = [
+      ...(await server.createList('product', quantity)),
+      ...overrideList,
+    ]
+
+    return products
+  }
+
   it('should mount the component', () => {
     const wrapper = mount(ProductList)
     expect(wrapper.vm).toBeDefined()
@@ -42,8 +57,8 @@ describe('ProductList - integration', () => {
     expect(axios.get).toHaveBeenCalledWith('/api/products')
   })
 
-  it('should mount the ProductCard component 10 times', async () => {
-    const products = server.createList('product', 10)
+  it('should mount the ProductCard component 11 times', async () => {
+    const products = await getProducts(undefined, [{ name: 'any watcher' }])
     axios.get.mockReturnValue(Promise.resolve({ data: { products } }))
 
     const wrapper = mount(ProductList, {
@@ -55,7 +70,7 @@ describe('ProductList - integration', () => {
     await nextTick()
 
     const cards = wrapper.findAllComponents(ProductCard)
-    expect(cards).toHaveLength(10)
+    expect(cards).toHaveLength(11)
   })
 
   it('shoud display the error message when Promise rejects', async () => {
@@ -73,12 +88,11 @@ describe('ProductList - integration', () => {
 
   it('should filter the product list when when a search is performed', async () => {
     // Arrange
-    const products = [
-      ...server.createList('product', 10),
-      server.create('product', {
-        title: 'relógio do bom',
-      }),
-    ]
+    const products = await getProducts(undefined, [
+      {
+        name: 'super relógio',
+      },
+    ])
 
     axios.get.mockReturnValue(Promise.resolve({ data: { products } }))
 
@@ -95,8 +109,12 @@ describe('ProductList - integration', () => {
     const search = wrapper.findComponent(Search)
     search.findAll('input[type="search"]').at(0).setValue(term)
     await search.find('form').trigger('submit')
+    search.findAll('input[type="search"]').at(0).setValue('')
+    await search.find('form').trigger('submit')
 
     // Assert
-    expect(wrapper.vm.searchTerm).toEqual(term)
+    const cards = wrapper.findAllComponents(ProductCard)
+    expect(wrapper.vm.searchTerm).toEqual('')
+    expect(cards).toHaveLength(11)
   })
 })
