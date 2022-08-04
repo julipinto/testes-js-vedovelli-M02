@@ -1,7 +1,19 @@
 import { mount } from '@vue/test-utils'
 import Cart from '@/components/Cart.vue'
+import CartItem from '@/components/CartItem.vue'
+import { makeServer } from '@/miragejs/server'
 
 describe('Cart - unit', () => {
+  let server
+
+  beforeEach(() => {
+    server = makeServer({ environment: 'test' })
+  })
+
+  afterEach(() => {
+    server.shutdown({ environment: 'test' })
+  })
+
   it('should mount the component', () => {
     const wrapper = mount(Cart)
     expect(wrapper.vm).toBeDefined()
@@ -22,5 +34,21 @@ describe('Cart - unit', () => {
       },
     })
     expect(wrapper.classes()).not.toContain('hidden')
+  })
+
+  it("should display 'Cart is empty' when no items are passed", () => {
+    const wrapper = mount(Cart)
+    expect(wrapper.text()).toContain('Cart is empty')
+  })
+
+  it('should display 2 instances of CartItem when 2 items are passed', () => {
+    const products = server.createList('product', 2)
+    const wrapper = mount(Cart, {
+      propsData: {
+        products,
+      },
+    })
+    expect(wrapper.findAllComponents(CartItem)).toHaveLength(2)
+    expect(wrapper.text()).not.toContain('Cart is empty')
   })
 })
