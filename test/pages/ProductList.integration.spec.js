@@ -36,6 +36,28 @@ describe('ProductList - integration', () => {
     return products
   }
 
+  const mountProductList = async (
+    quantity = 10,
+    override = [],
+    shouldReject = false
+  ) => {
+    if (shouldReject) {
+      axios.get.mockReturnValue(Promise.reject(new Error('error')))
+    } else {
+      const products = await getProducts(quantity, override)
+      axios.get.mockReturnValue(Promise.resolve({ data: { products } }))
+    }
+
+    const wrapper = mount(ProductList, {
+      mocks: {
+        $axios: axios,
+      },
+    })
+
+    await nextTick()
+    return { wrapper }
+  }
+
   it('should mount the component', () => {
     const wrapper = mount(ProductList)
     expect(wrapper.vm).toBeDefined()
@@ -57,53 +79,26 @@ describe('ProductList - integration', () => {
     expect(axios.get).toHaveBeenCalledWith('/api/products')
   })
 
-  it('should mount the ProductCard component 11 times', async () => {
-    const products = await getProducts(undefined, [{ name: 'any watcher' }])
-    axios.get.mockReturnValue(Promise.resolve({ data: { products } }))
-
-    const wrapper = mount(ProductList, {
-      mocks: {
-        $axios: axios,
-      },
-    })
-
-    await nextTick()
-
+  it('should mount the ProductCard component 10 times', async () => {
+    const { wrapper } = await mountProductList()
     const cards = wrapper.findAllComponents(ProductCard)
-    expect(cards).toHaveLength(11)
+    expect(cards).toHaveLength(10)
   })
 
   it('shoud display the error message when Promise rejects', async () => {
-    axios.get.mockReturnValue(Promise.reject(new Error('Error')))
-
-    const wrapper = mount(ProductList, {
-      mocks: {
-        $axios: axios,
-      },
-    })
-
-    await nextTick()
+    const { wrapper } = await mountProductList(undefined, undefined, true)
     expect(wrapper.text()).toContain('Problemas ao carregar a lista!')
   })
 
   it('should filter the product list when when a search is performed', async () => {
     // Arrange
-    const products = await getProducts(undefined, [
+    const { wrapper } = await mountProductList(undefined, [
       {
         name: 'super relógio',
       },
     ])
 
-    axios.get.mockReturnValue(Promise.resolve({ data: { products } }))
-
-    const wrapper = mount(ProductList, {
-      mocks: {
-        $axios: axios,
-      },
-    })
-
     const term = 'relógio'
-    await nextTick()
 
     // Act
     const search = wrapper.findComponent(Search)
