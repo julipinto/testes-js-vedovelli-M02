@@ -22,12 +22,12 @@ export class CartManager {
     return this.state
   }
 
-  productIsInCart(product) {
+  productIsInTheCart(product) {
     return !!this.state.items.find((item) => item.id === product.id)
   }
 
   addProduct(product) {
-    if (!this.productIsInCart(product)) {
+    if (!this.productIsInTheCart(product)) {
       this.state.items.push(product)
     }
 
@@ -58,5 +58,9 @@ export class CartManager {
 
   getState() {
     return this.state
+  }
+
+  getProducts() {
+    return this.state.items
   }
 }

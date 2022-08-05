@@ -113,8 +113,10 @@
 </template>
 
 <script>
-import { cartState } from '@/state'
+import CartManager from '@/components/CartManager'
 import Cart from '@/components/Cart.vue'
+
+const manager = new CartManager()
 
 export default {
   components: {
@@ -122,15 +124,19 @@ export default {
   },
   computed: {
     isCartOpen() {
-      return cartState.open
+      return manager.getState().open
     },
     products() {
-      return cartState.items
+      return manager.getProducts()
     },
   },
   methods: {
     toggleCart() {
-      cartState.open = !cartState.open
+      if (manager.getState().open) {
+        manager.close()
+      } else {
+        manager.open()
+      }
     },
   },
 }

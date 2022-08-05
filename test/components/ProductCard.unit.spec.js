@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import ProductCard from '@/components/ProductCard.vue'
 import { makeServer } from '@/miragejs/server'
-import { cartState } from '@/state'
+import { CartManager } from '@/managers/CartManager'
 
 const mountProduct = (server) => {
   const product = server.create('product', {
@@ -21,9 +21,11 @@ const mountProduct = (server) => {
 
 describe('ProductCard - unit', () => {
   let server
+  let cartManager
 
   beforeEach(() => {
     server = makeServer({ environment: 'test' })
+    cartManager = new CartManager()
   })
 
   afterEach(() => {
@@ -45,6 +47,6 @@ describe('ProductCard - unit', () => {
   it('should add item to cartState on button click', async () => {
     const { wrapper } = mountProduct(server)
     await wrapper.find('button').trigger('click')
-    expect(cartState.items).toHaveLength(1)
+    expect(cartManager.getProducts()).toHaveLength(1)
   })
 })
