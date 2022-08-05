@@ -12,9 +12,9 @@
     "lint": "yarn lint:js && yarn lint:prettier",
     "lintfix": "prettier --write --list-different . && yarn lint:js --fix",
     "prepare": "husky install",
-    "test": "jest",
-    "test:watch": "jest --watchAll",
-    "test:cov": "jest --coverage"
+    "test": "jest --detectOpenHandles",
+    "test:watch": "npm test -- --watchAll",
+    "test:cov": "npm test -- --coverage"
   },
   "lint-staged": {
     "*.{js,vue}": "eslint --cache",
