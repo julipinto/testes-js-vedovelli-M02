@@ -32,6 +32,7 @@
           </div>
           <div class="flex items-center justify-end w-full">
             <button
+              data-testid="toggle-button"
               class="text-gray-600 focus:outline-none mx-4 sm:mx-0"
               @click="toggleCart"
             >
@@ -113,10 +114,7 @@
 </template>
 
 <script>
-import CartManager from '@/components/CartManager'
 import Cart from '@/components/Cart.vue'
-
-const manager = new CartManager()
 
 export default {
   components: {
@@ -124,18 +122,18 @@ export default {
   },
   computed: {
     isCartOpen() {
-      return manager.getState().open
+      return this.$cart.getState().open
     },
     products() {
-      return manager.getProducts()
+      return this.$cart.getProducts()
     },
   },
   methods: {
     toggleCart() {
-      if (manager.getState().open) {
-        manager.close()
+      if (this.$cart.getState().open) {
+        this.$cart.close()
       } else {
-        manager.open()
+        this.$cart.open()
       }
     },
   },

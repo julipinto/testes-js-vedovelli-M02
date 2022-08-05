@@ -14,6 +14,12 @@ const mountProduct = (server) => {
     propsData: {
       product,
     },
+    mocks: {
+      $cart: new CartManager(),
+    },
+    stubs: {
+      Nuxt: true,
+    },
   })
 
   return { product, wrapper }
