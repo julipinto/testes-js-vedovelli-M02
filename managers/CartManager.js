@@ -2,6 +2,8 @@ import Vue from 'vue'
 
 export default {
   install: (Vue) => {
+    /* This line will be ignored on coverage */
+    // istanbul ignore next
     Vue.prototype.$cart = new CartManager()
   },
 }

@@ -10,28 +10,28 @@ const mountProduct = (server) => {
     image: 'some_link',
   })
 
+  const manager = new CartManager()
+
   const wrapper = mount(ProductCard, {
     propsData: {
       product,
     },
     mocks: {
-      $cart: new CartManager(),
+      $cart: manager,
     },
     stubs: {
       Nuxt: true,
     },
   })
 
-  return { product, wrapper }
+  return { product, wrapper, manager }
 }
 
 describe('ProductCard - unit', () => {
   let server
-  let cartManager
 
   beforeEach(() => {
     server = makeServer({ environment: 'test' })
-    cartManager = new CartManager()
   })
 
   afterEach(() => {
@@ -51,8 +51,14 @@ describe('ProductCard - unit', () => {
   })
 
   it('should add item to cartState on button click', async () => {
-    const { wrapper } = mountProduct(server)
+    const { wrapper, manager, product } = mountProduct(server)
+    const spy1 = jest.spyOn(manager, 'open')
+    const spy2 = jest.spyOn(manager, 'addProduct')
+
     await wrapper.find('button').trigger('click')
-    expect(cartManager.getProducts()).toHaveLength(1)
+
+    expect(spy1).toHaveBeenCalledTimes(1)
+    expect(spy2).toHaveBeenCalledTimes(1)
+    expect(spy2).toHaveBeenCalledWith(product)
   })
 })
